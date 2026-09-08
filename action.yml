@@ -1,0 +1,44 @@
+name: RepoVerity Audit
+description: Deterministic evidence-based code trust audit for Python repositories
+author: RepoVerity contributors
+inputs:
+  path:
+    description: Repository path to audit
+    required: false
+    default: .
+  fail-on:
+    description: Fail threshold (none, medium, high, critical)
+    required: false
+    default: high
+  baseline:
+    description: Optional baseline path relative to the repository
+    required: false
+    default: ''
+  changed-only:
+    description: Optional Git base ref for changed-only analysis
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Run RepoVerity
+      shell: bash
+      env:
+        INPUT_AUDIT_PATH: ${{ inputs.path }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_BASELINE: ${{ inputs.baseline }}
+        INPUT_CHANGED_ONLY: ${{ inputs.changed-only }}
+      run: |
+        set -euo pipefail
+        args=(audit "$INPUT_AUDIT_PATH" --fail-on "$INPUT_FAIL_ON" --no-color)
+        if [[ -n "$INPUT_BASELINE" ]]; then
+          args+=(--baseline "$INPUT_BASELINE")
+        fi
+        if [[ -n "$INPUT_CHANGED_ONLY" ]]; then
+          args+=(--changed-only "$INPUT_CHANGED_ONLY")
+        fi
+        PYTHONPATH="$GITHUB_ACTION_PATH/src${PYTHONPATH:+:$PYTHONPATH}" \
+          python -m repoverity "${args[@]}"
+branding:
+  icon: shield
+  color: blue

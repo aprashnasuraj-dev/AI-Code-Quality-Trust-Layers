@@ -1,0 +1,28 @@
+name: Bug report
+description: Report incorrect behavior, crashes, or CLI problems
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Include commands, a small repository/fixture, or a reduced code sample when possible.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: RepoVerity version
+      description: Paste the output of `repoverity version`.
+      render: text
+    validations:
+      required: true

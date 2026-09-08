@@ -1,0 +1,1 @@
+"""Deliberately problematic fixture."""

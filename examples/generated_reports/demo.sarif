@@ -1,0 +1,409 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "originalUriBaseIds": {
+        "%SRCROOT%": {
+          "uri": "./"
+        }
+      },
+      "results": [
+        {
+          "level": "error",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/inventory/audit.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 16,
+                  "endLine": 1,
+                  "startColumn": 1,
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Import 'requests' has no matching declared dependency. Evidence: Static import 'requests' maps to candidate distribution(s): requests; none appear in project dependencies or optional groups."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "fb14b2462aefa233972e9c324a31fd4c28483eee7365d2c84abf11edc82bf7e2"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "high",
+            "evidenceLevel": "verified",
+            "tags": [
+              "runtime-correctness",
+              "release-risk"
+            ]
+          },
+          "ruleId": "DEP101"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pyproject.toml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "CI does not visibly exercise both Python 3.11 and 3.14, the declared range edges. Evidence: requires-python='>=3.11,<3.15'; workflow text contains 3.11=no, 3.14=no."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "2df1bbfe3d70c56fc769c7d42ed827153a29b79a08a12a856703a20d2f78cb79"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "high",
+            "evidenceLevel": "verified",
+            "tags": [
+              "release-risk",
+              "runtime-correctness"
+            ]
+          },
+          "ruleId": "REL704"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/inventory/audit.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 40,
+                  "endLine": 12,
+                  "startColumn": 1,
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Class 'InventoryClient' delegates 2/2 public methods (100%) directly to self._inner. Evidence: Dominant collaborator: self._inner; public methods: 2; direct delegates: 2; no behavior was inferred for those delegated bodies."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "3c2bfd811e1eea951cf99e4ad57a569f7c1467387a5f36f26637bf32295cbf10"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "medium",
+            "evidenceLevel": "inferred",
+            "tags": [
+              "cognitive-overhead",
+              "maintainability"
+            ]
+          },
+          "ruleId": "ABS201"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/inventory/audit.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 20,
+                  "endLine": 22,
+                  "startColumn": 1,
+                  "startLine": 19
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Boundary 'parse_manifest' raises explicit errors without direct test evidence. Evidence: Static exceptions: ValueError. Test corpus signal: symbol=no, exception/raises=no."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "afff4c3393fa995af86c82a04bf99df8a95e60cf6e4d857d1aaf3f260a6b511f"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "medium",
+            "evidenceLevel": "inferred",
+            "tags": [
+              "test-gap",
+              "runtime-correctness"
+            ]
+          },
+          "ruleId": "TST602"
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/inventory/audit.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 20,
+                  "endLine": 22,
+                  "startColumn": 1,
+                  "startLine": 19
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Parser/input boundary 'parse_manifest' lacks malformed-input fixture evidence. Evidence: Boundary contains branching/error logic. Test corpus signal: symbol=no, malformed-input vocabulary=no."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "8e76bb8db6ab498bb26d9f87855ef45f9d0ecca81e135dcec533740add66baa1"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "medium",
+            "evidenceLevel": "inferred",
+            "tags": [
+              "test-gap",
+              "runtime-correctness"
+            ]
+          },
+          "ruleId": "TST603"
+        },
+        {
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pyproject.toml",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Runtime dependency 'httpx' has no static production import evidence. Evidence: 'httpx' is declared in project.dependencies but no analyzed production import maps to that distribution."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "823be8d0a641a455007c265aa895f26cca5506aa43eebcc4998c101247354d6e"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "medium",
+            "evidenceLevel": "inferred",
+            "tags": [
+              "release-risk",
+              "maintainability"
+            ]
+          },
+          "ruleId": "DEP102"
+        },
+        {
+          "level": "note",
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/inventory/audit.py",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "endColumn": 25,
+                  "endLine": 16,
+                  "startColumn": 1,
+                  "startLine": 15
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Private helper '_unused_helper' has no static reference in analyzed Python source. Evidence: No Name-load or Attribute reference to this private top-level symbol was found."
+          },
+          "partialFingerprints": {
+            "repoverityFingerprint": "ef22ce98b62c044d4b67d195cc33344ae4075577666427104cd18587fd971b8e"
+          },
+          "properties": {
+            "baselineStatus": "new",
+            "confidence": "medium",
+            "evidenceLevel": "inferred",
+            "tags": [
+              "maintainability",
+              "cognitive-overhead"
+            ]
+          },
+          "ruleId": "DEAD502"
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "RepoVerity",
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "fullDescription": {
+                "text": "A production import appears to come from a third-party distribution absent from project dependency metadata."
+              },
+              "id": "DEP101",
+              "name": "DEP101",
+              "properties": {
+                "evidenceLevel": "verified",
+                "precision": "high",
+                "tags": [
+                  "runtime-correctness",
+                  "release-risk"
+                ]
+              },
+              "shortDescription": {
+                "text": "Third-party import is not declared"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "A runtime dependency is declared but no analyzed production source imports its known top-level package."
+              },
+              "id": "DEP102",
+              "name": "DEP102",
+              "properties": {
+                "evidenceLevel": "inferred",
+                "precision": "medium",
+                "tags": [
+                  "release-risk",
+                  "maintainability"
+                ]
+              },
+              "shortDescription": {
+                "text": "Declared runtime dependency has no static import evidence"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "fullDescription": {
+                "text": "Most public methods directly delegate to one collaborator and add little observable behavior."
+              },
+              "id": "ABS201",
+              "name": "ABS201",
+              "properties": {
+                "evidenceLevel": "inferred",
+                "precision": "medium",
+                "tags": [
+                  "cognitive-overhead",
+                  "maintainability"
+                ]
+              },
+              "shortDescription": {
+                "text": "Pass-through wrapper candidate"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "note"
+              },
+              "fullDescription": {
+                "text": "A private top-level function has no static name or attribute reference elsewhere in analyzed Python source."
+              },
+              "id": "DEAD502",
+              "name": "DEAD502",
+              "properties": {
+                "evidenceLevel": "inferred",
+                "precision": "medium",
+                "tags": [
+                  "maintainability",
+                  "cognitive-overhead"
+                ]
+              },
+              "shortDescription": {
+                "text": "Unused private helper candidate"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "fullDescription": {
+                "text": "A public boundary-like function raises an explicit exception but tests do not reference both the symbol and exception/raises behavior."
+              },
+              "id": "TST602",
+              "name": "TST602",
+              "properties": {
+                "evidenceLevel": "inferred",
+                "precision": "medium",
+                "tags": [
+                  "test-gap",
+                  "runtime-correctness"
+                ]
+              },
+              "shortDescription": {
+                "text": "Error branch lacks direct test signal"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "fullDescription": {
+                "text": "A parse/decode/load/validate boundary has branching or exceptions but no direct test signal using malformed/invalid/error input vocabulary."
+              },
+              "id": "TST603",
+              "name": "TST603",
+              "properties": {
+                "evidenceLevel": "inferred",
+                "precision": "medium",
+                "tags": [
+                  "test-gap",
+                  "runtime-correctness"
+                ]
+              },
+              "shortDescription": {
+                "text": "Parser/input boundary lacks malformed-input fixture signal"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "fullDescription": {
+                "text": "The project declares a bounded supported Python range, but GitHub workflow text does not include both the minimum and highest supported minor versions."
+              },
+              "id": "REL704",
+              "name": "REL704",
+              "properties": {
+                "evidenceLevel": "verified",
+                "precision": "high",
+                "tags": [
+                  "release-risk",
+                  "runtime-correctness"
+                ]
+              },
+              "shortDescription": {
+                "text": "CI does not exercise declared Python range edges"
+              }
+            }
+          ],
+          "semanticVersion": "0.1.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

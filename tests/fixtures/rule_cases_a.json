@@ -1,0 +1,209 @@
+{
+  "ABS201": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS201 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "class Client:\n    def __init__(self, inner):\n        self._inner = inner\n    def get(self, key):\n        return self._inner.get(key)\n    def put(self, key, value):\n        return self._inner.put(key, value)\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS201 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "from typing import Protocol\nclass Client(Protocol):\n    def get(self, key):\n        return self._inner.get(key)\n    def put(self, key, value):\n        return self._inner.put(key, value)\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS201 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "class Client:\n    def __init__(self, inner):\n        self._inner = inner\n    def get(self, key):\n        if not key:\n            raise ValueError(\"key required\")\n        return self._inner.get(key)\n    def put(self, key, value):\n        if not key:\n            raise ValueError(\"key required\")\n        return self._inner.put(key, value)\n"
+    }
+  },
+  "ABS202": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS202 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "class Formatter:\n    def format(self, text):\n        return text.strip()\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS202 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "class BaseFormatter:\n    pass\nclass Formatter(BaseFormatter):\n    def format(self, text):\n        return text.strip()\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS202 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def format_text(text):\n    return text.strip()\n"
+    }
+  },
+  "ABS203": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS203 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def work():\n    try:\n        try:\n            return perform()\n        except Exception:\n            raise\n    except RuntimeError:\n        return None\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS203 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def work():\n    try:\n        try:\n            return perform()\n        except Exception:\n            log_failure()\n            raise\n    except RuntimeError:\n        return None\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# ABS203 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def work():\n    try:\n        return perform()\n    except ProtocolError as exc:\n        raise DomainError(\"failed\") from exc\n"
+    }
+  },
+  "COM401": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM401 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def users_list(users):\n    # return users\n    return users\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM401 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def users_list(users):\n    # TODO: return users only after issue #42 is resolved.\n    return users\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM401 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def users_list(users):\n    # Keep ordering stable because downstream signatures include list position.\n    return users\n"
+    }
+  },
+  "COM402": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM402 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def summarize(users, ready):\n    # loop through users\n    for user in users:\n        print(user)\n    # check ready\n    if ready:\n        print(\"ready\")\n    result = len(users)\n    # return result\n    return result\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM402 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def summarize(users, ready):\n    # loop through users\n    for user in users:\n        print(user)\n    # check ready\n    if ready:\n        print(\"ready\")\n    return len(users)\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# COM402 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def summarize(users, ready):\n    # Preserve this order because an external signature covers the sequence.\n    for user in users:\n        print(user)\n    if ready:\n        print(\"ready\")\n    return len(users)\n"
+    }
+  },
+  "DEAD501": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD501 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def transform(payload, options):\n    return payload\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD501 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def on_event(event, _context):\n    return event\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD501 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def transform(payload, options):\n    return payload if options else None\n"
+    }
+  },
+  "DEAD502": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD502 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def _legacy_parse(text):\n    return text.strip()\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD502 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def register(func):\n    return func\n@register\ndef _plugin_hook(text):\n    return text\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD502 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def _legacy_parse(text):\n    return text.strip()\ndef parse(text):\n    return _legacy_parse(text)\n"
+    }
+  },
+  "DEAD504": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD504 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def save(payload):\n    raise NotImplementedError\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD504 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "from typing import Protocol\nclass Store(Protocol):\n    def save(self, payload):\n        pass\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEAD504 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "from abc import ABC, abstractmethod\nclass Store(ABC):\n    @abstractmethod\n    def save(self, payload):\n        raise NotImplementedError\n"
+    }
+  },
+  "DEP101": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP101 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "import requests\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP101 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n[project.optional-dependencies]\nhttp=[\"requests>=2\"]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "from requests import Session\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP101 good\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[\"requests>=2\"]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "import requests\n"
+    }
+  }
+}

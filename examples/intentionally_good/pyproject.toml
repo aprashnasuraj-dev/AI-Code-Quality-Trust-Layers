@@ -1,0 +1,7 @@
+[project]
+name = "repoverity-good-example"
+version = "0.1.0"
+requires-python = ">=3.11,<3.15"
+readme = "README.md"
+license = "MIT"
+dependencies = []

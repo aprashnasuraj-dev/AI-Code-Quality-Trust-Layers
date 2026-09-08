@@ -1,0 +1,42 @@
+RepoVerity 0.1.0 — Code Trust Audit
+Repository: intentionally_bad
+Files analyzed: 3 | Python LOC: 17 | Duration: 0.66s
+
+TRUST SUMMARY
+Runtime reality        2 finding(s)  1 high+ / 0 medium / 1 low-info
+Architecture           1 finding(s)  0 high+ / 1 medium / 0 low-info
+Naming                 0 finding(s)  0 high+ / 0 medium / 0 low-info
+Comments               0 finding(s)  0 high+ / 0 medium / 0 low-info
+Dead surface           1 finding(s)  0 high+ / 0 medium / 1 low-info
+Test boundaries        2 finding(s)  0 high+ / 2 medium / 0 low-info
+Release hygiene        1 finding(s)  0 high+ / 1 medium / 0 low-info
+
+Baseline: 7 new / 0 existing / 0 resolved
+
+HIGH-VALUE FINDINGS
+DEP101  HIGH     NEW      src/inventory/audit.py:1  Import 'requests' has no matching declared dependency.
+         evidence: Static import 'requests' maps to candidate distribution(s): requests; none appear in project dependencies or optional groups.
+         next: Declare the distribution in project dependencies, or document/configure why the import is provided out-of-band.
+REL704  MEDIUM   NEW      pyproject.toml:1  CI does not visibly exercise both Python 3.11 and 3.14, the declared range edges.
+         evidence: requires-python='>=3.11,<3.15'; workflow text contains 3.11=no, 3.14=no.
+         next: Add CI jobs for the minimum and highest supported Python minors; keep the matrix intentionally small.
+ABS201  MEDIUM   NEW      src/inventory/audit.py:4  Class 'InventoryClient' delegates 2/2 public methods (100%) directly to self._inner.
+         evidence: Dominant collaborator: self._inner; public methods: 2; direct delegates: 2; no behavior was inferred for those delegated bodies.
+         next: Keep the boundary if it is intentional; otherwise consider exposing the collaborator or collapsing the wrapper.
+TST602  MEDIUM   NEW      src/inventory/audit.py:19  Boundary 'parse_manifest' raises explicit errors without direct test evidence.
+         evidence: Static exceptions: ValueError. Test corpus signal: symbol=no, exception/raises=no.
+         next: Add a focused test that drives the error branch and asserts the observable failure contract.
+TST603  MEDIUM   NEW      src/inventory/audit.py:19  Parser/input boundary 'parse_manifest' lacks malformed-input fixture evidence.
+         evidence: Boundary contains branching/error logic. Test corpus signal: symbol=no, malformed-input vocabulary=no.
+         next: Add malformed, empty, boundary-size, or invalid-shape fixtures tied to the parser's documented contract.
+DEP102  LOW      NEW      pyproject.toml:1  Runtime dependency 'httpx' has no static production import evidence.
+         evidence: 'httpx' is declared in project.dependencies but no analyzed production import maps to that distribution.
+         next: Confirm whether the dependency is dynamically loaded or packaging-only; remove it if it has no runtime role.
+DEAD502 LOW      NEW      src/inventory/audit.py:15  Private helper '_unused_helper' has no static reference in analyzed Python source.
+         evidence: No Name-load or Attribute reference to this private top-level symbol was found.
+         next: Remove the helper if it is truly dead, or document/suppress dynamic registration/reflection use.
+
+Run:
+  repoverity explain RULE_ID
+  repoverity audit . --format markdown --output trust-report.md
+  repoverity audit . --format sarif --output trust.sarif

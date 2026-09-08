@@ -1,0 +1,220 @@
+{
+  "DEP102": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP102 bad\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[\"requests>=2\"]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE = 1\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP102 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[\"requests>=2\"]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "import importlib\nrequests = importlib.import_module(\"requests\")\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP102 good\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[\"requests>=2\"]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "import requests\n"
+    }
+  },
+  "DEP103": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP103 bad\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.9,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def classify(value):\n    match value:\n        case {\"kind\": kind}:\n            return kind\n        case _:\n            return None\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP103 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.10,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def classify(value):\n    match value:\n        case {\"kind\": kind}:\n            return kind\n        case _:\n            return None\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# DEP103 good\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.9,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def classify(value):\n    return value.get(\"kind\")\n"
+    }
+  },
+  "NAM301": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM301 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def reconcile_invoice_records(invoice_rows, ledger_entries, customer_accounts):\n    data = list(invoice_rows)\n    invoice_total = len(data)\n    ledger_total = len(ledger_entries)\n    customer_total = len(customer_accounts)\n    if invoice_total != ledger_total:\n        data = [row for row in data if row]\n    unmatched_invoice_rows = []\n    for invoice_row in data:\n        if invoice_row not in ledger_entries:\n            unmatched_invoice_rows.append(invoice_row)\n    customer_invoice_count = customer_total + len(data)\n    if customer_invoice_count < invoice_total:\n        data = data[:customer_invoice_count]\n    return data\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM301 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def collect(items):\n    for item in items:\n        print(item)\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM301 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def reconcile_invoice_records(invoice_rows, ledger_entries, customer_accounts):\n    reconciled_rows = list(invoice_rows)\n    invoice_total = len(reconciled_rows)\n    ledger_total = len(ledger_entries)\n    customer_total = len(customer_accounts)\n    if invoice_total != ledger_total:\n        reconciled_rows = [row for row in reconciled_rows if row]\n    unmatched_invoice_rows = []\n    for invoice_row in reconciled_rows:\n        if invoice_row not in ledger_entries:\n            unmatched_invoice_rows.append(invoice_row)\n    customer_invoice_count = customer_total + len(reconciled_rows)\n    if customer_invoice_count < invoice_total:\n        reconciled_rows = reconciled_rows[:customer_invoice_count]\n    return reconciled_rows\n"
+    }
+  },
+  "NAM302": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM302 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def process_data(payload):\n    return payload\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM302 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def _process_data(payload):\n    return payload\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# NAM302 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_invoice_rows(payload):\n    return payload\n"
+    }
+  },
+  "REL701": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL701 bad\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL701 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme={file=\"README.md\", content-type=\"text/markdown\"}\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL701 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    }
+  },
+  "REL704": {
+    "bad": {
+      ".github/workflows/ci.yml": "name: ci\non: [push]\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo 3.13\n",
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL704 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL704 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    },
+    "good": {
+      ".github/workflows/ci.yml": "name: ci\non: [push]\njobs:\n  test:\n    strategy:\n      matrix:\n        python-version: [\"3.11\", \"3.14\"]\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo ${{ matrix.python-version }}\n",
+      "LICENSE": "fixture license\n",
+      "README.md": "# REL704 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n"
+    }
+  },
+  "TST602": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST602 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_config(text):\n    if not text:\n        raise ValueError(\"empty\")\n    return text\n",
+      "tests/test_sample.py": "def test_valid():\n    assert True\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST602 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_config(text):\n    if not text:\n        raise ValueError(\"empty\")\n    return text\n",
+      "tests/test_sample.py": "# External harness drives parse_config and asserts ValueError on malformed input.\ndef test_external_contract_note():\n    assert True\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST602 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_config(text):\n    if not text:\n        raise ValueError(\"empty\")\n    return text\n",
+      "tests/test_sample.py": "import pytest\nfrom pkg.sample import parse_config\n\ndef test_parse_config_rejects_invalid_input():\n    with pytest.raises(ValueError):\n        parse_config(\"\")\n"
+    }
+  },
+  "TST603": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST603 bad\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_manifest(text):\n    if not text.startswith(\"HDR:\"):\n        raise ValueError(\"header\")\n    return text[4:]\n",
+      "tests/test_sample.py": "from pkg.sample import parse_manifest\ndef test_parse_manifest_valid():\n    assert parse_manifest(\"HDR:x\") == \"x\"\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST603 edge\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_manifest(text):\n    if not text.startswith(\"HDR:\"):\n        raise ValueError(\"header\")\n    return text[4:]\n",
+      "tests/test_sample.py": "# parse_manifest invalid-input behavior is covered by a generated external suite.\ndef test_contract_note():\n    assert True\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST603 good\n",
+      "pyproject.toml": "[project]\nname = \"fixture-project\"\nversion = \"0.0.0\"\nrequires-python = \">=3.11,<3.15\"\nreadme = \"README.md\"\nlicense = \"MIT\"\ndependencies = []\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "def parse_manifest(text):\n    if not text.startswith(\"HDR:\"):\n        raise ValueError(\"header\")\n    return text[4:]\n",
+      "tests/test_sample.py": "import pytest\nfrom pkg.sample import parse_manifest\ndef test_parse_manifest_rejects_malformed_header():\n    with pytest.raises(ValueError):\n        parse_manifest(\"bad\")\n"
+    }
+  },
+  "TST604": {
+    "bad": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST604 bad\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n[project.scripts]\nfixture-tool=\"pkg.cli:main\"\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n",
+      "tests/test_sample.py": "def test_internal():\n    assert True\n"
+    },
+    "edge": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST604 edge\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n[project.scripts]\nfixture-tool=\"pkg.cli:main\"\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n",
+      "tests/test_sample.py": "# Smoke contract: python -m pkg.cli --help validates fixture-tool entrypoint.\ndef test_documented_runner_contract():\n    assert True\n"
+    },
+    "good": {
+      "LICENSE": "fixture license\n",
+      "README.md": "# TST604 good\n",
+      "pyproject.toml": "[project]\nname=\"fixture-project\"\nversion=\"0.0.0\"\nrequires-python=\">=3.11,<3.15\"\nreadme=\"README.md\"\nlicense=\"MIT\"\ndependencies=[]\n[project.scripts]\nfixture-tool=\"pkg.cli:main\"\n",
+      "src/pkg/__init__.py": "",
+      "src/pkg/sample.py": "VALUE=1\n",
+      "tests/test_sample.py": "import subprocess, sys\n\ndef test_cli_help():\n    result = subprocess.run([\"fixture-tool\", \"--help\"], check=False)\n    assert result.returncode in {0, 1, 2}\n"
+    }
+  }
+}

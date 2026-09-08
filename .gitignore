@@ -1,0 +1,28 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Local analysis output
+trust-report.md
+trust.sarif
+.trust-baseline.json
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local recovery state
+.claude/

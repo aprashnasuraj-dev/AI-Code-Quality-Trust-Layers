@@ -1,0 +1,24 @@
+name: Rule proposal
+description: Propose a deterministic evidence-based rule
+labels: [rule-proposal]
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observable evidence
+      description: What can RepoVerity detect without executing the target repository?
+    validations:
+      required: true
+  - type: textarea
+    id: mechanism
+    attributes:
+      label: Mechanism of harm
+    validations:
+      required: true
+  - type: textarea
+    id: counterexample
+    attributes:
+      label: Legitimate counterexample
+      description: What valid code would look similar and must not be overclaimed?
+    validations:
+      required: true

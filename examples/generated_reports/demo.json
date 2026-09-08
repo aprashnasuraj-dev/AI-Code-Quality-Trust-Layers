@@ -1,0 +1,261 @@
+{
+  "analysis_issues": [],
+  "findings": [
+    {
+      "baseline_status": "new",
+      "category": "dependency-reality",
+      "confidence": "high",
+      "evidence": "Static import 'requests' maps to candidate distribution(s): requests; none appear in project dependencies or optional groups.",
+      "evidence_level": "verified",
+      "exception_note": "Some imports are supplied by platform images, namespace packages, optional extras, vendored code, or distribution/import-name aliases.",
+      "fingerprint": "fb14b2462aefa233972e9c324a31fd4c28483eee7365d2c84abf11edc82bf7e2",
+      "location": {
+        "end_column": 15,
+        "end_line": 1,
+        "path": "src/inventory/audit.py",
+        "start_column": 0,
+        "start_line": 1
+      },
+      "mechanism": "Clean installs can fail at import time when a dependency is only present on the author machine.",
+      "message": "Import 'requests' has no matching declared dependency.",
+      "metadata": {
+        "candidate_distributions": [
+          "requests"
+        ],
+        "symbol": "requests"
+      },
+      "recommendation": "Declare the distribution in project dependencies, or document/configure why the import is provided out-of-band.",
+      "rule_id": "DEP101",
+      "severity": "high",
+      "tags": [
+        "runtime-correctness",
+        "release-risk"
+      ],
+      "title": "Third-party import is not declared"
+    },
+    {
+      "baseline_status": "new",
+      "category": "release-hygiene",
+      "confidence": "high",
+      "evidence": "requires-python='>=3.11,<3.15'; workflow text contains 3.11=no, 3.14=no.",
+      "evidence_level": "verified",
+      "exception_note": "Compatibility may be tested in another CI provider or reusable workflow that is not visible in the repository text.",
+      "fingerprint": "2df1bbfe3d70c56fc769c7d42ed827153a29b79a08a12a856703a20d2f78cb79",
+      "location": {
+        "end_column": null,
+        "end_line": null,
+        "path": "pyproject.toml",
+        "start_column": null,
+        "start_line": 1
+      },
+      "mechanism": "A package can claim compatibility that no automated runner verifies, allowing syntax/API drift at range edges.",
+      "message": "CI does not visibly exercise both Python 3.11 and 3.14, the declared range edges.",
+      "metadata": {
+        "symbol": "python-ci-range"
+      },
+      "recommendation": "Add CI jobs for the minimum and highest supported Python minors; keep the matrix intentionally small.",
+      "rule_id": "REL704",
+      "severity": "medium",
+      "tags": [
+        "release-risk",
+        "runtime-correctness"
+      ],
+      "title": "CI does not exercise declared Python range edges"
+    },
+    {
+      "baseline_status": "new",
+      "category": "architecture",
+      "confidence": "medium",
+      "evidence": "Dominant collaborator: self._inner; public methods: 2; direct delegates: 2; no behavior was inferred for those delegated bodies.",
+      "evidence_level": "inferred",
+      "exception_note": "Adapters, facades, dependency-injection seams, API compatibility layers, and plugin contracts may intentionally be thin.",
+      "fingerprint": "3c2bfd811e1eea951cf99e4ad57a569f7c1467387a5f36f26637bf32295cbf10",
+      "location": {
+        "end_column": 39,
+        "end_line": 12,
+        "path": "src/inventory/audit.py",
+        "start_column": 0,
+        "start_line": 4
+      },
+      "mechanism": "Layers that do not validate, translate, cache, retry, enforce policy, or define a contract can add cognitive and debugging hops.",
+      "message": "Class 'InventoryClient' delegates 2/2 public methods (100%) directly to self._inner.",
+      "metadata": {
+        "collaborator": "_inner",
+        "delegate_ratio": 1.0,
+        "symbol": "InventoryClient"
+      },
+      "recommendation": "Keep the boundary if it is intentional; otherwise consider exposing the collaborator or collapsing the wrapper.",
+      "rule_id": "ABS201",
+      "severity": "medium",
+      "tags": [
+        "cognitive-overhead",
+        "maintainability"
+      ],
+      "title": "Pass-through wrapper candidate"
+    },
+    {
+      "baseline_status": "new",
+      "category": "test-boundaries",
+      "confidence": "medium",
+      "evidence": "Static exceptions: ValueError. Test corpus signal: symbol=no, exception/raises=no.",
+      "evidence_level": "inferred",
+      "exception_note": "Tests may reach the branch indirectly through higher-level APIs without naming the underlying symbol or exception.",
+      "fingerprint": "afff4c3393fa995af86c82a04bf99df8a95e60cf6e4d857d1aaf3f260a6b511f",
+      "location": {
+        "end_column": 19,
+        "end_line": 22,
+        "path": "src/inventory/audit.py",
+        "start_column": 0,
+        "start_line": 19
+      },
+      "mechanism": "Failure paths often survive happy-path tests and are disproportionately important at parsing, validation, configuration, and I/O boundaries.",
+      "message": "Boundary 'parse_manifest' raises explicit errors without direct test evidence.",
+      "metadata": {
+        "exceptions": [
+          "ValueError"
+        ],
+        "symbol": "parse_manifest"
+      },
+      "recommendation": "Add a focused test that drives the error branch and asserts the observable failure contract.",
+      "rule_id": "TST602",
+      "severity": "medium",
+      "tags": [
+        "test-gap",
+        "runtime-correctness"
+      ],
+      "title": "Error branch lacks direct test signal"
+    },
+    {
+      "baseline_status": "new",
+      "category": "test-boundaries",
+      "confidence": "medium",
+      "evidence": "Boundary contains branching/error logic. Test corpus signal: symbol=no, malformed-input vocabulary=no.",
+      "evidence_level": "inferred",
+      "exception_note": "Property-based tests or table-driven fixtures may provide excellent malformed-input coverage without using the searched vocabulary.",
+      "fingerprint": "8e76bb8db6ab498bb26d9f87855ef45f9d0ecca81e135dcec533740add66baa1",
+      "location": {
+        "end_column": 19,
+        "end_line": 22,
+        "path": "src/inventory/audit.py",
+        "start_column": 0,
+        "start_line": 19
+      },
+      "mechanism": "AI-assisted parsers often look plausible on happy paths while malformed inputs expose assumptions, crashes, or silent acceptance.",
+      "message": "Parser/input boundary 'parse_manifest' lacks malformed-input fixture evidence.",
+      "metadata": {
+        "symbol": "parse_manifest"
+      },
+      "recommendation": "Add malformed, empty, boundary-size, or invalid-shape fixtures tied to the parser's documented contract.",
+      "rule_id": "TST603",
+      "severity": "medium",
+      "tags": [
+        "test-gap",
+        "runtime-correctness"
+      ],
+      "title": "Parser/input boundary lacks malformed-input fixture signal"
+    },
+    {
+      "baseline_status": "new",
+      "category": "dependency-reality",
+      "confidence": "medium",
+      "evidence": "'httpx' is declared in project.dependencies but no analyzed production import maps to that distribution.",
+      "evidence_level": "inferred",
+      "exception_note": "Plugins, entry points, subprocess tools, dynamic imports, and framework discovery may use a dependency without a static import.",
+      "fingerprint": "823be8d0a641a455007c265aa895f26cca5506aa43eebcc4998c101247354d6e",
+      "location": {
+        "end_column": null,
+        "end_line": null,
+        "path": "pyproject.toml",
+        "start_column": null,
+        "start_line": 1
+      },
+      "mechanism": "Unused dependencies increase install surface, supply-chain exposure, and maintenance burden.",
+      "message": "Runtime dependency 'httpx' has no static production import evidence.",
+      "metadata": {
+        "symbol": "httpx"
+      },
+      "recommendation": "Confirm whether the dependency is dynamically loaded or packaging-only; remove it if it has no runtime role.",
+      "rule_id": "DEP102",
+      "severity": "low",
+      "tags": [
+        "release-risk",
+        "maintainability"
+      ],
+      "title": "Declared runtime dependency has no static import evidence"
+    },
+    {
+      "baseline_status": "new",
+      "category": "dead-surface",
+      "confidence": "medium",
+      "evidence": "No Name-load or Attribute reference to this private top-level symbol was found.",
+      "evidence_level": "inferred",
+      "exception_note": "String-based registration, decorators implemented outside the repository, reflection, and framework discovery may consume private symbols indirectly.",
+      "fingerprint": "ef22ce98b62c044d4b67d195cc33344ae4075577666427104cd18587fd971b8e",
+      "location": {
+        "end_column": 24,
+        "end_line": 16,
+        "path": "src/inventory/audit.py",
+        "start_column": 0,
+        "start_line": 15
+      },
+      "mechanism": "Dead helpers preserve obsolete concepts, enlarge review surface, and can mislead maintainers about supported paths.",
+      "message": "Private helper '_unused_helper' has no static reference in analyzed Python source.",
+      "metadata": {
+        "symbol": "_unused_helper"
+      },
+      "recommendation": "Remove the helper if it is truly dead, or document/suppress dynamic registration/reflection use.",
+      "rule_id": "DEAD502",
+      "severity": "low",
+      "tags": [
+        "maintainability",
+        "cognitive-overhead"
+      ],
+      "title": "Unused private helper candidate"
+    }
+  ],
+  "repository": {
+    "commit": null,
+    "path": "intentionally_bad"
+  },
+  "resolved_fingerprints": [],
+  "schema_version": "1.0",
+  "summary": {
+    "analysis_issues": 0,
+    "by_category": {
+      "architecture": 1,
+      "dead-surface": 1,
+      "dependency-reality": 2,
+      "release-hygiene": 1,
+      "test-boundaries": 2
+    },
+    "by_severity": {
+      "critical": 0,
+      "high": 1,
+      "info": 0,
+      "low": 2,
+      "medium": 4
+    },
+    "existing_findings": 0,
+    "new_by_severity": {
+      "critical": 0,
+      "high": 1,
+      "info": 0,
+      "low": 2,
+      "medium": 4
+    },
+    "new_findings": 7,
+    "resolved_findings": 0,
+    "total_findings": 7
+  },
+  "timing": {
+    "duration_seconds": 0.624089,
+    "files_analyzed": 3,
+    "python_loc": 17,
+    "skipped_files": 0
+  },
+  "tool": {
+    "name": "repoverity",
+    "version": "0.1.0"
+  },
+  "warnings": []
+}
