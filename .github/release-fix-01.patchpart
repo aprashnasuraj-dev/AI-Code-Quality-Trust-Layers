@@ -1,0 +1,251 @@
++            if (
++                name in {"self", "cls"}
++                or name.startswith("_")
++                or name in _CALLBACK_NAMES
++                or name in used
++            ):
++                continue
++            self.findings.append(
++                finding(
++                    "DEAD501",
++                    self.source,
++                    message=(
++                        f"Parameter '{name}' in '{node.name}' has no static load reference."
++                    ),
++                    evidence=(
++                        "The parameter is present in the signature but no Name-load for it "
++                        "occurs in the function body."
++                    ),
++                    line=getattr(argument, "lineno", getattr(node, "lineno", None)),
++                    column=getattr(argument, "col_offset", None),
++                    symbol=f"{node.name}:{name}",
++                    anchor=f"{node.name}:{name}",
++                )
++            )
++
++    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
++        self._visit_function(node)
++
++    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
++        self._visit_function(node)
++
++
+ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
+-    findings = []
++    findings: list[Finding] = []
+ 
+     all_references: set[str] = set()
+     for source in context.sources:
+@@ -67,8 +183,14 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
+                     finding(
+                         "DEAD502",
+                         source,
+-                        message=f"Private helper '{top_level.name}' has no static reference in analyzed Python source.",
+-                        evidence="No Name-load or Attribute reference to this private top-level symbol was found.",
++                        message=(
++                            f"Private helper '{top_level.name}' has no static reference in "
++                            "analyzed Python source."
++                        ),
++                        evidence=(
++                            "No Name-load or Attribute reference to this private top-level "
++                            "symbol was found."
++                        ),
+                         line=line,
+                         column=col,
+                         end_line=end_line,
+@@ -78,91 +200,6 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
+                     )
+                 )
+ 
+-        class_stack: list[ast.ClassDef] = []
+-
+-        class Visitor(ast.NodeVisitor):
+-            def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
+-                class_stack.append(node)
+-                self.generic_visit(node)
+-                class_stack.pop()
+-
+-            def _visit_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+-                decorators = _decorator_names(node)
+-                in_based_class = bool(class_stack and _class_base_names(class_stack[-1]))
+-                if not decorators and not in_based_class and not node.name.startswith("on_"):
+-                    used = loaded_names(node)
+-                    args = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+-                    for arg in args:
+-                        name = arg.arg
+-                        if (
+-                            name in {"self", "cls"}
+-                            or name.startswith("_")
+-                            or name in _CALLBACK_NAMES
+-                            or name in used
+-                        ):
+-                            continue
+-                        findings.append(
+-                            finding(
+-                                "DEAD501",
+-                                source,
+-                                message=f"Parameter '{name}' in '{node.name}' has no static load reference.",
+-                                evidence=(
+-                                    "The parameter is present in the signature but no Name-load for it occurs in the function body."
+-                                ),
+-                                line=getattr(arg, "lineno", getattr(node, "lineno", None)),
+-                                column=getattr(arg, "col_offset", None),
+-                                symbol=f"{node.name}:{name}",
+-                                anchor=f"{node.name}:{name}",
+-                            )
+-                        )
+-
+-                abstract_context = _is_abstract_function(node) or bool(
+-                    class_stack and _class_base_names(class_stack[-1]).intersection({"ABC", "Protocol"})
+-                )
+-                placeholder = _placeholder_body(node)
+-                if placeholder and not abstract_context:
+-                    line, col, end_line, end_col = node_span(node)
+-                    findings.append(
+-                        finding(
+-                            "DEAD504",
+-                            source,
+-                            message=f"Production function '{node.name}' is a placeholder: {placeholder}.",
+-                            evidence="The function is not visibly abstract and is outside the test tree.",
+-                            line=line,
+-                            column=col,
+-                            end_line=end_line,
+-                            end_column=end_col,
+-                            symbol=node.name,
+-                            anchor=placeholder,
+-                        )
+-                    )
+-
+-                for child in node.body:
+-                    if isinstance(child, ast.If) and child.body and all(isinstance(item, ast.Pass) for item in child.body):
+-                        line, col, end_line, end_col = node_span(child)
+-                        findings.append(
+-                            finding(
+-                                "DEAD504",
+-                                source,
+-                                message=f"Function '{node.name}' contains a pass-only conditional branch.",
+-                                evidence="The conditional branch body contains only pass and no visible effect.",
+-                                line=line,
+-                                column=col,
+-                                end_line=end_line,
+-                                end_column=end_col,
+-                                symbol=f"{node.name}:if",
+-                                anchor="pass-only-if",
+-                            )
+-                        )
+-
+-                self.generic_visit(node)
+-
+-            def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+-                self._visit_function(node)
+-
+-            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
+-                self._visit_function(node)
+-
+-        Visitor().visit(source.tree)
++        _DeadSurfaceVisitor(source, findings).visit(source.tree)
+ 
+     return findings
+diff --git a/src/repoverity/rules/dependency.py b/src/repoverity/rules/dependency.py
+index c5fb70e..6fd9b65 100644
+--- a/src/repoverity/rules/dependency.py
++++ b/src/repoverity/rules/dependency.py
+@@ -3,10 +3,10 @@
+ from __future__ import annotations
+ 
+ import ast
++from collections.abc import Iterable
++from functools import lru_cache
+ import importlib.metadata
+ import sys
+-from functools import lru_cache
+-from typing import Iterable
+ 
+ from repoverity.ast_utils import node_span
+ from repoverity.project import normalize_distribution_name
+diff --git a/src/repoverity/suppressions.py b/src/repoverity/suppressions.py
+index 1a194f0..7d9ded4 100644
+--- a/src/repoverity/suppressions.py
++++ b/src/repoverity/suppressions.py
+@@ -2,8 +2,8 @@
+ 
+ from __future__ import annotations
+ 
++from collections.abc import Mapping
+ import re
+-from typing import Mapping
+ 
+ from repoverity.discovery import SourceFile
+ from repoverity.models import Finding
+diff --git a/tests/integration/test_baseline_and_git.py b/tests/integration/test_baseline_and_git.py
+index 8127d32..0be5ab3 100644
+--- a/tests/integration/test_baseline_and_git.py
++++ b/tests/integration/test_baseline_and_git.py
+@@ -1,12 +1,11 @@
+ from __future__ import annotations
+ 
+-import json
+ from pathlib import Path
+ import subprocess
+ 
++from repoverity.baseline import write_baseline
+ from repoverity.config import load_config
+ from repoverity.engine import AuditOptions, audit_repository
+-from repoverity.baseline import write_baseline
+ from repoverity.gitdiff import changed_paths
+ 
+ 
+@@ -58,7 +57,8 @@ def test_changed_only_committed_branch_delta(tmp_path: Path) -> None:
+     init_repo(tmp_path)
+     base = git(tmp_path, "rev-parse", "HEAD").stdout.strip()
+     (tmp_path / "feature.py").write_text("VALUE=2\n")
+-    git(tmp_path, "add", "feature.py"); git(tmp_path, "commit", "-m", "feature")
++    git(tmp_path, "add", "feature.py")
++    git(tmp_path, "commit", "-m", "feature")
+     paths, warning = changed_paths(tmp_path, base)
+     assert warning is None and "feature.py" in paths
+ 
+diff --git a/tests/integration/test_cli.py b/tests/integration/test_cli.py
+index f59a97c..da1c8fc 100644
+--- a/tests/integration/test_cli.py
++++ b/tests/integration/test_cli.py
+@@ -6,8 +6,6 @@ from pathlib import Path
+ import subprocess
+ import sys
+ 
+-import pytest
+-
+ ROOT = Path(__file__).resolve().parents[2]
+ GOOD = ROOT / "examples" / "intentionally_good"
+ BAD = ROOT / "examples" / "intentionally_bad"
+@@ -51,7 +49,7 @@ def test_sarif_output_is_parseable(tmp_path: Path) -> None:
+     out = tmp_path / "trust.sarif"
+     result = run_cli("audit", str(GOOD), "--format", "sarif", "--output", str(out))
+     assert result.returncode == 0
+-    assert json.loads(out.read_text())["version"] == "2.1.0"
++    assert json.loads(out.read_text(encoding="utf-8"))["version"] == "2.1.0"
+ 
+ 
+ def test_markdown_output() -> None:
+diff --git a/tests/integration/test_security_and_inputs.py b/tests/integration/test_security_and_inputs.py
+index eac08d2..4d70509 100644
+--- a/tests/integration/test_security_and_inputs.py
++++ b/tests/integration/test_security_and_inputs.py
+@@ -1,7 +1,6 @@
+ from __future__ import annotations
+ 
+ from pathlib import Path
+-import os
+ 
+ from repoverity.config import Config
+ from repoverity.engine import AuditOptions, audit_repository
+@@ -10,7 +9,8 @@ from repoverity.engine import AuditOptions, audit_repository
+ def test_analyzer_never_executes_target_import_time_code(tmp_path: Path) -> None:
+     marker = tmp_path / "EXECUTED"
+     (tmp_path / "sitecustomize.py").write_text(f'from pathlib import Path\nPath({str(marker)!r}).write_text("bad")\n')
+-    pkg = tmp_path / "evil"; pkg.mkdir()
++    pkg = tmp_path / "evil"
++    pkg.mkdir()
+     (pkg / "__init__.py").write_text(f'from pathlib import Path\nPath({str(marker)!r}).write_text("bad")\n')
+     (pkg / "module.py").write_text('import subprocess\nVALUE=1\n')
+     result = audit_repository(tmp_path, Config(), AuditOptions())

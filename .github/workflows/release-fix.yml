@@ -1,0 +1,50 @@
+name: One-time hosted release fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Apply reviewed portability and rule-engine patch
+        shell: bash
+        run: |
+          cat .github/release-fix-*.patchpart > /tmp/repoverity-release-fix.patch
+          git apply --check /tmp/repoverity-release-fix.patch
+          git apply /tmp/repoverity-release-fix.patch
+      - name: Install development tools
+        run: python -m pip install -e '.[dev]'
+      - name: Apply mechanical Ruff fixes and formatting
+        run: |
+          python -m ruff check . --fix
+          python -m ruff format .
+          python -m ruff check .
+          python -m ruff format --check .
+      - name: Verify behavior after formatting
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m pytest
+          python -m compileall -q src tests
+      - name: Remove one-time release-fix files and commit
+        shell: bash
+        run: |
+          rm -f .github/release-fix-*.patchpart .github/workflows/release-fix.yml
+          git add -A
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Fix hosted CI portability and formatting'
+          git push origin HEAD:main
