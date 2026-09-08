@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import argparse
-import platform
+from collections.abc import Sequence
 from pathlib import Path
+import platform
 import sys
-from typing import Sequence
 
 from repoverity import __version__
 from repoverity.baseline import BaselineError, write_baseline

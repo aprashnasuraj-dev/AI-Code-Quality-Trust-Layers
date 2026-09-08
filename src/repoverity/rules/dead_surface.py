@@ -5,8 +5,9 @@ from __future__ import annotations
 import ast
 
 from repoverity.ast_utils import dotted_name, loaded_names, node_span, strip_docstring
+from repoverity.discovery import SourceFile
+from repoverity.models import Finding
 from repoverity.rules.base import AnalysisContext, finding
-
 
 _CALLBACK_NAMES = {"event", "request", "context", "sender", "signal"}
 
@@ -31,14 +32,129 @@ def _placeholder_body(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str | Non
     if isinstance(statement, ast.Pass):
         return "function body contains only pass"
     if isinstance(statement, ast.Raise):
-        name = dotted_name(statement.exc.func) if isinstance(statement.exc, ast.Call) else dotted_name(statement.exc) if statement.exc else None
+        if isinstance(statement.exc, ast.Call):
+            name = dotted_name(statement.exc.func)
+        elif statement.exc is not None:
+            name = dotted_name(statement.exc)
+        else:
+            name = None
         if name and name.endswith("NotImplementedError"):
             return "function raises NotImplementedError"
     return None
 
 
+class _DeadSurfaceVisitor(ast.NodeVisitor):
+    """Analyze one production source without closing over the outer source loop."""
+
+    def __init__(self, source: SourceFile, findings: list[Finding]) -> None:
+        self.source = source
+        self.findings = findings
+        self.class_stack: list[ast.ClassDef] = []
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
+        self.class_stack.append(node)
+        self.generic_visit(node)
+        self.class_stack.pop()
+
+    def _visit_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        decorators = _decorator_names(node)
+        in_based_class = bool(
+            self.class_stack and _class_base_names(self.class_stack[-1])
+        )
+        if not decorators and not in_based_class and not node.name.startswith("on_"):
+            self._check_unused_parameters(node)
+
+        abstract_context = _is_abstract_function(node) or bool(
+            self.class_stack
+            and _class_base_names(self.class_stack[-1]).intersection({"ABC", "Protocol"})
+        )
+        placeholder = _placeholder_body(node)
+        if placeholder and not abstract_context:
+            line, col, end_line, end_col = node_span(node)
+            self.findings.append(
+                finding(
+                    "DEAD504",
+                    self.source,
+                    message=(
+                        f"Production function '{node.name}' is a placeholder: {placeholder}."
+                    ),
+                    evidence="The function is not visibly abstract and is outside the test tree.",
+                    line=line,
+                    column=col,
+                    end_line=end_line,
+                    end_column=end_col,
+                    symbol=node.name,
+                    anchor=placeholder,
+                )
+            )
+
+        for child in node.body:
+            if isinstance(child, ast.If) and child.body and all(
+                isinstance(item, ast.Pass) for item in child.body
+            ):
+                line, col, end_line, end_col = node_span(child)
+                self.findings.append(
+                    finding(
+                        "DEAD504",
+                        self.source,
+                        message=(
+                            f"Function '{node.name}' contains a pass-only conditional branch."
+                        ),
+                        evidence=(
+                            "The conditional branch body contains only pass and no visible effect."
+                        ),
+                        line=line,
+                        column=col,
+                        end_line=end_line,
+                        end_column=end_col,
+                        symbol=f"{node.name}:if",
+                        anchor="pass-only-if",
+                    )
+                )
+
+        self.generic_visit(node)
+
+    def _check_unused_parameters(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef
+    ) -> None:
+        used = loaded_names(node)
+        arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+        for argument in arguments:
+            name = argument.arg
+            if (
+                name in {"self", "cls"}
+                or name.startswith("_")
+                or name in _CALLBACK_NAMES
+                or name in used
+            ):
+                continue
+            self.findings.append(
+                finding(
+                    "DEAD501",
+                    self.source,
+                    message=(
+                        f"Parameter '{name}' in '{node.name}' has no static load reference."
+                    ),
+                    evidence=(
+                        "The parameter is present in the signature but no Name-load for it "
+                        "occurs in the function body."
+                    ),
+                    line=getattr(argument, "lineno", getattr(node, "lineno", None)),
+                    column=getattr(argument, "col_offset", None),
+                    symbol=f"{node.name}:{name}",
+                    anchor=f"{node.name}:{name}",
+                )
+            )
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+        self._visit_function(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
+        self._visit_function(node)
+
+
 def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
-    findings = []
+    findings: list[Finding] = []
 
     all_references: set[str] = set()
     for source in context.sources:
@@ -67,8 +183,14 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
                     finding(
                         "DEAD502",
                         source,
-                        message=f"Private helper '{top_level.name}' has no static reference in analyzed Python source.",
-                        evidence="No Name-load or Attribute reference to this private top-level symbol was found.",
+                        message=(
+                            f"Private helper '{top_level.name}' has no static reference in "
+                            "analyzed Python source."
+                        ),
+                        evidence=(
+                            "No Name-load or Attribute reference to this private top-level "
+                            "symbol was found."
+                        ),
                         line=line,
                         column=col,
                         end_line=end_line,
@@ -78,91 +200,6 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
                     )
                 )
 
-        class_stack: list[ast.ClassDef] = []
-
-        class Visitor(ast.NodeVisitor):
-            def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
-                class_stack.append(node)
-                self.generic_visit(node)
-                class_stack.pop()
-
-            def _visit_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
-                decorators = _decorator_names(node)
-                in_based_class = bool(class_stack and _class_base_names(class_stack[-1]))
-                if not decorators and not in_based_class and not node.name.startswith("on_"):
-                    used = loaded_names(node)
-                    args = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
-                    for arg in args:
-                        name = arg.arg
-                        if (
-                            name in {"self", "cls"}
-                            or name.startswith("_")
-                            or name in _CALLBACK_NAMES
-                            or name in used
-                        ):
-                            continue
-                        findings.append(
-                            finding(
-                                "DEAD501",
-                                source,
-                                message=f"Parameter '{name}' in '{node.name}' has no static load reference.",
-                                evidence=(
-                                    "The parameter is present in the signature but no Name-load for it occurs in the function body."
-                                ),
-                                line=getattr(arg, "lineno", getattr(node, "lineno", None)),
-                                column=getattr(arg, "col_offset", None),
-                                symbol=f"{node.name}:{name}",
-                                anchor=f"{node.name}:{name}",
-                            )
-                        )
-
-                abstract_context = _is_abstract_function(node) or bool(
-                    class_stack and _class_base_names(class_stack[-1]).intersection({"ABC", "Protocol"})
-                )
-                placeholder = _placeholder_body(node)
-                if placeholder and not abstract_context:
-                    line, col, end_line, end_col = node_span(node)
-                    findings.append(
-                        finding(
-                            "DEAD504",
-                            source,
-                            message=f"Production function '{node.name}' is a placeholder: {placeholder}.",
-                            evidence="The function is not visibly abstract and is outside the test tree.",
-                            line=line,
-                            column=col,
-                            end_line=end_line,
-                            end_column=end_col,
-                            symbol=node.name,
-                            anchor=placeholder,
-                        )
-                    )
-
-                for child in node.body:
-                    if isinstance(child, ast.If) and child.body and all(isinstance(item, ast.Pass) for item in child.body):
-                        line, col, end_line, end_col = node_span(child)
-                        findings.append(
-                            finding(
-                                "DEAD504",
-                                source,
-                                message=f"Function '{node.name}' contains a pass-only conditional branch.",
-                                evidence="The conditional branch body contains only pass and no visible effect.",
-                                line=line,
-                                column=col,
-                                end_line=end_line,
-                                end_column=end_col,
-                                symbol=f"{node.name}:if",
-                                anchor="pass-only-if",
-                            )
-                        )
-
-                self.generic_visit(node)
-
-            def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
-                self._visit_function(node)
-
-            def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
-                self._visit_function(node)
-
-        Visitor().visit(source.tree)
+        _DeadSurfaceVisitor(source, findings).visit(source.tree)
 
     return findings

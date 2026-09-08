@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import re
-from typing import Mapping
 
 from repoverity.discovery import SourceFile
 from repoverity.models import Finding

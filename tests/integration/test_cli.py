@@ -6,8 +6,6 @@ from pathlib import Path
 import subprocess
 import sys
 
-import pytest
-
 ROOT = Path(__file__).resolve().parents[2]
 GOOD = ROOT / "examples" / "intentionally_good"
 BAD = ROOT / "examples" / "intentionally_bad"
@@ -51,7 +49,7 @@ def test_sarif_output_is_parseable(tmp_path: Path) -> None:
     out = tmp_path / "trust.sarif"
     result = run_cli("audit", str(GOOD), "--format", "sarif", "--output", str(out))
     assert result.returncode == 0
-    assert json.loads(out.read_text())["version"] == "2.1.0"
+    assert json.loads(out.read_text(encoding="utf-8"))["version"] == "2.1.0"
 
 
 def test_markdown_output() -> None:

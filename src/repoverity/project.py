@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 import re
-from typing import Any, Mapping
 import tomllib
+from typing import Any
 
 
 _DIST_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*")

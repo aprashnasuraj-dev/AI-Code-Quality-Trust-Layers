@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterable
+from functools import lru_cache
 import importlib.metadata
 import sys
-from functools import lru_cache
-from typing import Iterable
 
 from repoverity.ast_utils import node_span
 from repoverity.project import normalize_distribution_name

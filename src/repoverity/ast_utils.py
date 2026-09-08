@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import ast
-import re
 from collections.abc import Iterable
+import re
 
 
 _WORD_BOUNDARY = re.compile(r"(?<!^)(?=[A-Z])")

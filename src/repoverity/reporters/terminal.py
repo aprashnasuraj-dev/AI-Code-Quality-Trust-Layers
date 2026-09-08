@@ -8,7 +8,6 @@ import sys
 
 from repoverity import __version__
 from repoverity.models import AuditResult, Severity
-from repoverity.rules.registry import all_rules
 
 
 _CATEGORY_ORDER = (

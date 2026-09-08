@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterable
 from dataclasses import dataclass
 from fnmatch import fnmatch
 import os
 from pathlib import Path
 import tokenize
-from typing import Iterable
 
 from repoverity.models import AnalysisIssue
 

@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 import hashlib
 import json
 import re
-from typing import Any, Mapping
+from typing import Any
 
 
 _DIGIT_RUN = re.compile(r"\b\d+\b")

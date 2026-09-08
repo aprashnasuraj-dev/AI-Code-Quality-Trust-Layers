@@ -5,7 +5,16 @@ from pathlib import Path
 
 from repoverity.config import Config
 from repoverity.engine import AuditOptions, audit_repository
-from repoverity.models import AnalysisIssue, AuditResult, Confidence, EvidenceLevel, Finding, Location, RepositoryStats, Severity
+from repoverity.models import (
+    AnalysisIssue,
+    AuditResult,
+    Confidence,
+    EvidenceLevel,
+    Finding,
+    Location,
+    RepositoryStats,
+    Severity,
+)
 from repoverity.reporters import render_json, render_markdown, render_sarif, render_terminal
 from repoverity.reporters.sarif import sarif_payload
 
@@ -47,8 +56,42 @@ def test_terminal_no_color_has_no_ansi() -> None:
 
 
 def test_repository_reporters_on_clean_project(tmp_path: Path) -> None:
-    (tmp_path / "app.py").write_text("VALUE = 1\n")
+    (tmp_path / "app.py").write_text("VALUE = 1\n", encoding="utf-8")
     result = audit_repository(tmp_path, Config(), AuditOptions())
     json.loads(render_json(result))
     json.loads(render_sarif(result))
     assert "RepoVerity Code Trust Report" in render_markdown(result)
+
+
+def test_reporters_and_finding_order_are_deterministic(tmp_path: Path) -> None:
+    (tmp_path / "b.py").write_text("import requests\n", encoding="utf-8")
+    (tmp_path / "a.py").write_text("import yaml\n", encoding="utf-8")
+
+    first = audit_repository(tmp_path, Config(), AuditOptions())
+    second = audit_repository(tmp_path, Config(), AuditOptions())
+
+    assert [item.fingerprint for item in first.findings] == [
+        item.fingerprint for item in second.findings
+    ]
+    first_json = json.loads(render_json(first))
+    second_json = json.loads(render_json(second))
+    first_json.pop("timing")
+    second_json.pop("timing")
+    assert first_json == second_json
+    assert render_markdown(first) == render_markdown(second)
+    assert render_sarif(first) == render_sarif(second)
+
+
+def test_sarif_rule_mapping_locations_and_fingerprints_are_valid() -> None:
+    payload = sarif_payload(sample_result("src/pkg/module.py"))
+    run = payload["runs"][0]
+    rule_ids = [rule["id"] for rule in run["tool"]["driver"]["rules"]]
+    assert len(rule_ids) == len(set(rule_ids))
+    result = run["results"][0]
+    assert result["ruleId"] in rule_ids
+    region = result["locations"][0]["physicalLocation"]["region"]
+    assert region["startLine"] > 0
+    artifact = result["locations"][0]["physicalLocation"]["artifactLocation"]
+    assert not artifact["uri"].startswith("/")
+    assert "\\" not in artifact["uri"]
+    assert result["partialFingerprints"]["repoverityFingerprint"] == "abc123"
