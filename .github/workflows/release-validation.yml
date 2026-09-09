@@ -1,0 +1,126 @@
+name: Release validation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install development tools
+        run: python -m pip install -e '.[dev]'
+      - name: Compile sources
+        run: python -m compileall -q src tests
+      - name: Self-audit
+        run: |
+          python -m repoverity audit . --format json --output self-audit.json --no-color
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('self-audit.json').read_text(encoding='utf-8'))
+          findings = payload['summary']['total_findings']
+          issues = payload['summary']['analysis_issues']
+          print(f'self-audit findings={findings} analysis_issues={issues}')
+          if findings != 0 or issues != 0:
+              raise SystemExit(1)
+          PY
+      - name: Clean and build distributions
+        run: |
+          rm -rf build dist ./*.egg-info src/*.egg-info
+          python -m build
+      - name: Check distributions
+        run: python -m twine check dist/*
+      - name: Record artifact hashes
+        run: sha256sum dist/* | tee SHA256SUMS
+      - name: Clean wheel install smoke
+        run: |
+          python -m venv /tmp/repoverity-wheel-smoke
+          /tmp/repoverity-wheel-smoke/bin/python -m pip install --no-index --no-deps dist/*.whl
+          cd /tmp
+          /tmp/repoverity-wheel-smoke/bin/repoverity version
+          /tmp/repoverity-wheel-smoke/bin/repoverity --help >/dev/null
+          /tmp/repoverity-wheel-smoke/bin/repoverity audit "$GITHUB_WORKSPACE/examples/intentionally_good" --fail-on high --no-color
+          /tmp/repoverity-wheel-smoke/bin/python - <<'PY'
+          import repoverity
+          print(repoverity.__file__)
+          if '/site-packages/' not in (repoverity.__file__ or ''):
+              raise SystemExit('wheel smoke did not import from site-packages')
+          PY
+      - name: Reconstruct wheel from sdist
+        run: |
+          TMP=$(mktemp -d)
+          tar -xzf dist/*.tar.gz -C "$TMP"
+          SDIR=$(find "$TMP" -mindepth 1 -maxdepth 1 -type d -name 'repoverity-*' | head -n 1)
+          mkdir -p "$TMP/rebuilt"
+          (cd "$SDIR" && python -m build --wheel --outdir "$TMP/rebuilt")
+          python -m venv /tmp/repoverity-sdist-smoke
+          /tmp/repoverity-sdist-smoke/bin/python -m pip install --no-index --no-deps "$TMP"/rebuilt/*.whl
+          cd /tmp
+          /tmp/repoverity-sdist-smoke/bin/repoverity version
+          /tmp/repoverity-sdist-smoke/bin/repoverity --help >/dev/null
+          /tmp/repoverity-sdist-smoke/bin/repoverity audit "$GITHUB_WORKSPACE/examples/intentionally_good" --fail-on high --no-color
+      - name: Run release benchmarks
+        run: |
+          python scripts/benchmark.py --loc 1000 10000 50000 | tee benchmark.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('benchmark.json').read_text(encoding='utf-8'))
+          if payload['repoverity_sha'] != '${{ github.sha }}':
+              raise SystemExit('benchmark SHA does not match workflow SHA')
+          expected = [1000, 10000, 50000]
+          actual = [item['requested_loc'] for item in payload['results']]
+          if actual != expected:
+              raise SystemExit(f'unexpected benchmark scales: {actual}')
+          for item in payload['results']:
+              if item['analyzed_loc'] != item['requested_loc']:
+                  raise SystemExit(f"benchmark LOC mismatch: {item}")
+          PY
+      - name: Write release evidence
+        run: |
+          python - <<'PY'
+          import glob
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          artifacts = {}
+          for name in sorted(glob.glob('dist/*')):
+              path = Path(name)
+              artifacts[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
+          evidence = {
+              'sha': os.environ['GITHUB_SHA'],
+              'python': os.popen('python --version').read().strip(),
+              'artifacts': artifacts,
+              'self_audit': json.loads(Path('self-audit.json').read_text(encoding='utf-8'))['summary'],
+              'benchmark': json.loads(Path('benchmark.json').read_text(encoding='utf-8')),
+          }
+          Path('release-evidence.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(evidence, indent=2))
+          PY
+      - name: Upload release-validation evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: repoverity-release-validation-${{ github.sha }}
+          path: |
+            dist/*
+            SHA256SUMS
+            benchmark.json
+            self-audit.json
+            release-evidence.json
+          if-no-files-found: error

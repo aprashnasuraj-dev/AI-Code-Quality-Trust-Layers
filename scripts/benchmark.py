@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import platform
 import resource
 import subprocess
 import sys
@@ -28,6 +29,24 @@ def generate(root: Path, loc: int) -> None:
         (pkg / f"module_{index:04d}.py").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _rss_mib(raw_value: int | float) -> float:
+    # Linux reports ru_maxrss in KiB; macOS reports bytes.
+    divisor = 1024**2 if sys.platform == "darwin" else 1024
+    return round(raw_value / divisor, 1)
+
+
+def _current_sha() -> str | None:
+    completed = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    return completed.stdout.strip() if completed.returncode == 0 else None
+
+
 def one(loc: int) -> dict[str, float | int]:
     with tempfile.TemporaryDirectory(prefix="repoverity-bench-") as raw:
         target = Path(raw)
@@ -49,7 +68,7 @@ def one(loc: int) -> dict[str, float | int]:
             "requested_loc": loc,
             "analyzed_loc": payload["timing"]["python_loc"],
             "seconds": round(elapsed, 4),
-            "max_rss_mib": round(max(before, after) / 1024, 1),
+            "max_rss_mib": _rss_mib(max(before, after)),
         }
 
 
@@ -59,7 +78,16 @@ def main() -> None:
     args = parser.parse_args()
     print(
         json.dumps(
-            {"python": sys.version.split()[0], "results": [one(loc) for loc in args.loc]}, indent=2
+            {
+                "python": sys.version.split()[0],
+                "platform": platform.platform(),
+                "repoverity_sha": _current_sha(),
+                "memory_note": (
+                    "ru_maxrss converted from bytes on macOS and KiB on other supported benchmark hosts"
+                ),
+                "results": [one(loc) for loc in args.loc],
+            },
+            indent=2,
         )
     )
 
