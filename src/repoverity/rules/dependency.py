@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from functools import lru_cache
 
 from repoverity.ast_utils import node_span
+from repoverity.discovery import SourceFile
 from repoverity.project import normalize_distribution_name
 from repoverity.rules.base import AnalysisContext, finding
 
@@ -47,7 +48,7 @@ def _candidate_distributions(
     return (normalize_distribution_name(import_name),)
 
 
-def _iter_imports(context: AnalysisContext) -> Iterable[tuple[object, ast.AST, str]]:
+def _iter_imports(context: AnalysisContext) -> Iterable[tuple[SourceFile, ast.AST, str]]:
     """Yield imports that can be identified without executing project code.
 
     Literal-string dynamic imports are included because they are deterministic evidence
@@ -84,12 +85,11 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
     findings = []
     installed = _installed_mapping()
     declared = context.metadata.all_dependency_names
-    stdlib = getattr(sys, "stdlib_module_names", frozenset())
+    stdlib: frozenset[str] = sys.stdlib_module_names
     imported_distributions: set[str] = set()
     seen_dep101: set[tuple[str, str]] = set()
 
-    for source_obj, node, top_name in _iter_imports(context):
-        source = source_obj
+    for source, node, top_name in _iter_imports(context):
         if top_name in stdlib or top_name in context.local_modules:
             continue
         candidates = tuple(

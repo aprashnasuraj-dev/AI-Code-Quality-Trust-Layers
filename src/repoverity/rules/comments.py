@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 
+from repoverity.discovery import SourceFile
 from repoverity.rules.base import AnalysisContext, finding
 
 _RATIONALE_MARKERS = (
@@ -66,7 +67,7 @@ def _narration_reason(comment: str, code: str) -> str | None:
     return None
 
 
-def _candidates(source):  # type: ignore[no-untyped-def]
+def _candidates(source: SourceFile) -> list[tuple[int, str, str]]:
     lines = source.text.splitlines()
     candidates: list[tuple[int, str, str]] = []
     for index, raw in enumerate(lines):
