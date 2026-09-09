@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 
 def _run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -48,8 +48,6 @@ def changed_paths(root: Path, base_ref: str) -> tuple[frozenset[str] | None, str
         if result.returncode != 0:
             return None, "Git diff failed; running full audit instead"
         paths.update(
-            line.strip().replace("\\", "/")
-            for line in result.stdout.splitlines()
-            if line.strip()
+            line.strip().replace("\\", "/") for line in result.stdout.splitlines() if line.strip()
         )
     return frozenset(paths), None

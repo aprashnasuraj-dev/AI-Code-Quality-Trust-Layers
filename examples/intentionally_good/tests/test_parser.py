@@ -1,5 +1,4 @@
 import pytest
-
 from goodpkg.parser import parse_invoice_rows
 
 

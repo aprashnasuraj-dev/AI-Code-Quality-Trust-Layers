@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import ast
-from collections.abc import Iterable
-from functools import lru_cache
 import importlib.metadata
 import sys
+from collections.abc import Iterable
+from functools import lru_cache
 
 from repoverity.ast_utils import node_span
 from repoverity.project import normalize_distribution_name
 from repoverity.rules.base import AnalysisContext, finding
-
 
 _KNOWN_IMPORT_TO_DIST: dict[str, tuple[str, ...]] = {
     "PIL": ("pillow",),
@@ -38,7 +37,9 @@ def _installed_mapping() -> dict[str, tuple[str, ...]]:
     return result
 
 
-def _candidate_distributions(import_name: str, installed: dict[str, tuple[str, ...]]) -> tuple[str, ...]:
+def _candidate_distributions(
+    import_name: str, installed: dict[str, tuple[str, ...]]
+) -> tuple[str, ...]:
     if import_name in _KNOWN_IMPORT_TO_DIST:
         return _KNOWN_IMPORT_TO_DIST[import_name]
     if import_name in installed and installed[import_name]:
@@ -91,7 +92,10 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
         source = source_obj
         if top_name in stdlib or top_name in context.local_modules:
             continue
-        candidates = tuple(normalize_distribution_name(name) for name in _candidate_distributions(top_name, installed))
+        candidates = tuple(
+            normalize_distribution_name(name)
+            for name in _candidate_distributions(top_name, installed)
+        )
         imported_distributions.update(candidates)
         if declared.intersection(candidates):
             continue

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 GOOD = ROOT / "examples" / "intentionally_good"
@@ -14,7 +14,14 @@ BAD = ROOT / "examples" / "intentionally_bad"
 def run_cli(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src")
-    return subprocess.run([sys.executable, "-m", "repoverity", *args], cwd=cwd or ROOT, env=env, text=True, capture_output=True, check=False)
+    return subprocess.run(
+        [sys.executable, "-m", "repoverity", *args],
+        cwd=cwd or ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
 
 
 def test_repoverity_help_smoke() -> None:

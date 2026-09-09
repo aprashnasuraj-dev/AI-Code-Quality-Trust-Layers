@@ -35,13 +35,18 @@ def _public_methods(node: ast.ClassDef) -> list[ast.FunctionDef | ast.AsyncFunct
     return [
         child
         for child in node.body
-        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and not child.name.startswith("_")
+        if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and not child.name.startswith("_")
     ]
 
 
 def _has_abstract_marker(node: ast.ClassDef) -> bool:
     base_names = {
-        base.id if isinstance(base, ast.Name) else base.attr if isinstance(base, ast.Attribute) else ""
+        base.id
+        if isinstance(base, ast.Name)
+        else base.attr
+        if isinstance(base, ast.Attribute)
+        else ""
         for base in node.bases
     }
     return bool(base_names.intersection({"ABC", "Protocol"}))
@@ -50,7 +55,10 @@ def _has_abstract_marker(node: ast.ClassDef) -> bool:
 def _self_state_count(node: ast.ClassDef) -> int:
     count = 0
     for child in node.body:
-        if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) or child.name != "__init__":
+        if (
+            not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            or child.name != "__init__"
+        ):
             continue
         for item in ast.walk(child):
             if isinstance(item, (ast.Assign, ast.AnnAssign)):

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from repoverity import __version__
 from repoverity.models import BaselineStatus, Finding
-
 
 BASELINE_SCHEMA_VERSION = "1.0"
 
@@ -71,7 +70,9 @@ def classify_findings(
 ) -> tuple[tuple[Finding, ...], tuple[str, ...]]:
     classified = tuple(
         finding.with_baseline_status(
-            BaselineStatus.EXISTING if finding.fingerprint in baseline.fingerprints else BaselineStatus.NEW
+            BaselineStatus.EXISTING
+            if finding.fingerprint in baseline.fingerprints
+            else BaselineStatus.NEW
         )
         for finding in findings
     )

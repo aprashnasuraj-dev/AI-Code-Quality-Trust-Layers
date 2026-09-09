@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
+import re
+import tomllib
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-import re
-import tomllib
 from typing import Any
-
 
 _DIST_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*")
 _MIN_PYTHON = re.compile(r">=\s*3\.(\d+)")
@@ -79,7 +78,11 @@ def load_project_metadata(root: Path) -> ProjectMetadata:
         return ProjectMetadata(raw=raw, parse_error="[project] is not a table")
 
     dependencies_raw = project.get("dependencies", [])
-    dependencies = tuple(item for item in dependencies_raw if isinstance(item, str)) if isinstance(dependencies_raw, list) else ()
+    dependencies = (
+        tuple(item for item in dependencies_raw if isinstance(item, str))
+        if isinstance(dependencies_raw, list)
+        else ()
+    )
 
     optional_raw = project.get("optional-dependencies", {})
     optional: dict[str, tuple[str, ...]] = {}
@@ -112,7 +115,9 @@ def load_project_metadata(root: Path) -> ProjectMetadata:
         name=project.get("name") if isinstance(project.get("name"), str) else None,
         version=project.get("version") if isinstance(project.get("version"), str) else None,
         requires_python=(
-            project.get("requires-python") if isinstance(project.get("requires-python"), str) else None
+            project.get("requires-python")
+            if isinstance(project.get("requires-python"), str)
+            else None
         ),
         dependencies=dependencies,
         optional_dependencies=optional,

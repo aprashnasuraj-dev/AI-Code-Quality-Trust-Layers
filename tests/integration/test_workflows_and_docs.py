@@ -18,7 +18,13 @@ def test_all_yaml_parses() -> None:
 
 def test_ci_runs_missing_local_toolchain() -> None:
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    for command in ("ruff check .", "ruff format --check .", "mypy src/repoverity", "python -m build", "twine check dist/*"):
+    for command in (
+        "ruff check .",
+        "ruff format --check .",
+        "mypy src/repoverity",
+        "python -m build",
+        "twine check dist/*",
+    ):
         assert command in text
 
 

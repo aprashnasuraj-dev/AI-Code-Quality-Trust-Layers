@@ -17,8 +17,12 @@ def summary_dict(result: AuditResult) -> dict[str, Any]:
         "new_findings": len(result.new_findings),
         "existing_findings": len(result.existing_findings),
         "resolved_findings": len(result.resolved_fingerprints),
-        "by_severity": {severity.value: severity_counts.get(severity.value, 0) for severity in Severity},
-        "new_by_severity": {severity.value: new_severity.get(severity.value, 0) for severity in Severity},
+        "by_severity": {
+            severity.value: severity_counts.get(severity.value, 0) for severity in Severity
+        },
+        "new_by_severity": {
+            severity.value: new_severity.get(severity.value, 0) for severity in Severity
+        },
         "by_category": dict(sorted(category_counts.items())),
         "analysis_issues": len(result.issues),
     }

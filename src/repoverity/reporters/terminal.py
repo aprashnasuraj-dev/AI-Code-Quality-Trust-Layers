@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from collections import Counter
 import os
 import sys
+from collections import Counter
 
 from repoverity import __version__
 from repoverity.models import AuditResult, Severity
-
 
 _CATEGORY_ORDER = (
     "dependency-reality",
@@ -111,7 +110,9 @@ def render_terminal(result: AuditResult, *, no_color: bool = False, verbose: boo
         for issue in result.issues[:5]:
             lines.append(f"{issue.kind}: {issue.path}: {issue.message}")
         if len(result.issues) > 5:
-            lines.append(f"... {len(result.issues) - 5} more; use --verbose with JSON for full details")
+            lines.append(
+                f"... {len(result.issues) - 5} more; use --verbose with JSON for full details"
+            )
     if result.warnings:
         lines.extend(["", "WARNINGS"])
         lines.extend(result.warnings)

@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 import re
+from collections.abc import Mapping
 
 from repoverity.discovery import SourceFile
 from repoverity.models import Finding
-
 
 _SUPPRESSION = re.compile(r"#\s*repoverity:\s*ignore\[([^\]]+)\](?:\s*-\s*(.*))?", re.IGNORECASE)
 

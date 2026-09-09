@@ -58,9 +58,7 @@ class _DeadSurfaceVisitor(ast.NodeVisitor):
 
     def _visit_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         decorators = _decorator_names(node)
-        in_based_class = bool(
-            self.class_stack and _class_base_names(self.class_stack[-1])
-        )
+        in_based_class = bool(self.class_stack and _class_base_names(self.class_stack[-1]))
         if not decorators and not in_based_class and not node.name.startswith("on_"):
             self._check_unused_parameters(node)
 
@@ -75,9 +73,7 @@ class _DeadSurfaceVisitor(ast.NodeVisitor):
                 finding(
                     "DEAD504",
                     self.source,
-                    message=(
-                        f"Production function '{node.name}' is a placeholder: {placeholder}."
-                    ),
+                    message=(f"Production function '{node.name}' is a placeholder: {placeholder}."),
                     evidence="The function is not visibly abstract and is outside the test tree.",
                     line=line,
                     column=col,
@@ -89,8 +85,10 @@ class _DeadSurfaceVisitor(ast.NodeVisitor):
             )
 
         for child in node.body:
-            if isinstance(child, ast.If) and child.body and all(
-                isinstance(item, ast.Pass) for item in child.body
+            if (
+                isinstance(child, ast.If)
+                and child.body
+                and all(isinstance(item, ast.Pass) for item in child.body)
             ):
                 line, col, end_line, end_col = node_span(child)
                 self.findings.append(
@@ -114,9 +112,7 @@ class _DeadSurfaceVisitor(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _check_unused_parameters(
-        self, node: ast.FunctionDef | ast.AsyncFunctionDef
-    ) -> None:
+    def _check_unused_parameters(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
         used = loaded_names(node)
         arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
         for argument in arguments:
@@ -132,9 +128,7 @@ class _DeadSurfaceVisitor(ast.NodeVisitor):
                 finding(
                     "DEAD501",
                     self.source,
-                    message=(
-                        f"Parameter '{name}' in '{node.name}' has no static load reference."
-                    ),
+                    message=(f"Parameter '{name}' in '{node.name}' has no static load reference."),
                     evidence=(
                         "The parameter is present in the signature but no Name-load for it "
                         "occurs in the function body."

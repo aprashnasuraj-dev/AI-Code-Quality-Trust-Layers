@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from repoverity.baseline import BaselineError, load_baseline
-from repoverity.config import ConfigError, DEFAULT_EXCLUDE_PATTERNS, load_config
+from repoverity.config import DEFAULT_EXCLUDE_PATTERNS, ConfigError, load_config
 from repoverity.discovery import discover_sources
 from repoverity.fingerprints import make_fingerprint
 
@@ -45,7 +45,9 @@ def test_malformed_config_raises_config_error(tmp_path: Path) -> None:
 
 
 def test_invalid_config_type_rejected(tmp_path: Path) -> None:
-    (tmp_path / "pyproject.toml").write_text('[tool.repoverity]\nexclude = "bad"\n', encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text(
+        '[tool.repoverity]\nexclude = "bad"\n', encoding="utf-8"
+    )
     with pytest.raises(ConfigError):
         load_config(tmp_path)
 
@@ -66,7 +68,12 @@ def test_future_baseline_schema_rejected(tmp_path: Path) -> None:
 
 def test_duplicate_baseline_fingerprint_rejected(tmp_path: Path) -> None:
     path = tmp_path / "baseline.json"
-    path.write_text(json.dumps({"schema_version": "1.0", "findings": [{"fingerprint":"x"},{"fingerprint":"x"}]}), encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {"schema_version": "1.0", "findings": [{"fingerprint": "x"}, {"fingerprint": "x"}]}
+        ),
+        encoding="utf-8",
+    )
     with pytest.raises(BaselineError):
         load_baseline(path)
 

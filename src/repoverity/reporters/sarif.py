@@ -10,7 +10,6 @@ from repoverity import __version__
 from repoverity.models import AuditResult, Severity
 from repoverity.rules.registry import all_rules
 
-
 SARIF_SCHEMA = "https://json.schemastore.org/sarif-2.1.0.json"
 
 

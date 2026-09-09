@@ -58,7 +58,9 @@ def finding(
         path,
         symbol=symbol,
         anchor=anchor or message,
-        extra={key: finding_metadata[key] for key in sorted(finding_metadata) if key.startswith("fp_")},
+        extra={
+            key: finding_metadata[key] for key in sorted(finding_metadata) if key.startswith("fp_")
+        },
     )
     return Finding(
         rule_id=rule_id,

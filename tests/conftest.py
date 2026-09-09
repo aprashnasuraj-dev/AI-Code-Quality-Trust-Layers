@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import pytest
 
 from repoverity.config import load_config
 from repoverity.engine import AuditOptions, audit_repository
-
 
 FIXTURE_CORPUS_FILES = (
     Path(__file__).parent / "fixtures" / "rule_cases_a.json",
@@ -43,4 +42,5 @@ def copy_project(tmp_path: Path):
         target = tmp_path / source.name
         shutil.copytree(source, target)
         return target
+
     return _copy

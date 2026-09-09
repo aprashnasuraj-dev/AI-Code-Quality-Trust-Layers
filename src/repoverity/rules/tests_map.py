@@ -7,8 +7,17 @@ import ast
 from repoverity.ast_utils import dotted_name, node_span
 from repoverity.rules.base import AnalysisContext, finding
 
-
-_BOUNDARY_TERMS = ("parse", "load", "read", "decode", "validate", "config", "command", "cli", "input")
+_BOUNDARY_TERMS = (
+    "parse",
+    "load",
+    "read",
+    "decode",
+    "validate",
+    "config",
+    "command",
+    "cli",
+    "input",
+)
 _PARSER_TERMS = ("parse", "decode", "load", "read", "validate", "from_")
 _INVALID_TERMS = ("invalid", "malformed", "bad", "empty", "raises", "error", "reject", "missing")
 
@@ -80,7 +89,9 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
                             )
                         )
 
-            if _is_parser_boundary(node.name) and (_has_branching(node) or _raised_exception_names(node)):
+            if _is_parser_boundary(node.name) and (
+                _has_branching(node) or _raised_exception_names(node)
+            ):
                 symbol_signal = node.name.lower() in test_text_lower
                 malformed_signal = any(term in test_text_lower for term in _INVALID_TERMS)
                 if not (symbol_signal and malformed_signal):

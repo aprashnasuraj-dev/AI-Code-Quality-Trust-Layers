@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
-import time
 
 from repoverity.baseline import classify_findings, load_baseline
 from repoverity.config import Config, configured_severity
 from repoverity.discovery import SourceFile, discover_sources
 from repoverity.gitdiff import changed_paths, current_commit
 from repoverity.models import (
+    SEVERITY_RANK,
     AnalysisIssue,
     AuditResult,
     Finding,
     RepositoryStats,
-    SEVERITY_RANK,
     Severity,
 )
 from repoverity.project import load_project_metadata
@@ -133,7 +133,9 @@ def audit_repository(root: Path, config: Config, options: AuditOptions) -> Audit
     source_by_path = {source.relpath: source for source in sources}
     raw_findings = [item for item in raw_findings if not is_suppressed(item, source_by_path)]
     raw_findings = [
-        item for item in raw_findings if SEVERITY_RANK[item.severity] >= SEVERITY_RANK[options.minimum_severity]
+        item
+        for item in raw_findings
+        if SEVERITY_RANK[item.severity] >= SEVERITY_RANK[options.minimum_severity]
     ]
     if changed is not None:
         raw_findings = _changed_filter(raw_findings, changed)

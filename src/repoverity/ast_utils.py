@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import ast
-from collections.abc import Iterable
 import re
-
+from collections.abc import Iterable
 
 _WORD_BOUNDARY = re.compile(r"(?<!^)(?=[A-Z])")
 _NON_WORD = re.compile(r"[^A-Za-z0-9]+")

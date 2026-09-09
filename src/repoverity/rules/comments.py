@@ -6,7 +6,6 @@ import re
 
 from repoverity.rules.base import AnalysisContext, finding
 
-
 _RATIONALE_MARKERS = (
     "because",
     "due to",
@@ -102,7 +101,11 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
             )
 
         for index in range(len(candidates)):
-            window = [candidate for candidate in candidates[index:] if candidate[0] - candidates[index][0] <= 12]
+            window = [
+                candidate
+                for candidate in candidates[index:]
+                if candidate[0] - candidates[index][0] <= 12
+            ]
             if len(window) >= 3:
                 start = window[0][0]
                 end = window[-1][0]

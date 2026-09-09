@@ -9,7 +9,6 @@ from repoverity import __version__
 from repoverity.models import AuditResult
 from repoverity.reporters.common import summary_dict
 
-
 JSON_SCHEMA_VERSION = "1.0"
 
 

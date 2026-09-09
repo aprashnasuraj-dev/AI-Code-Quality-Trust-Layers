@@ -8,7 +8,6 @@ from collections import defaultdict
 from repoverity.ast_utils import assignment_names, node_span, symbol_words
 from repoverity.rules.base import AnalysisContext, finding
 
-
 _GENERIC_LOCALS = {"data", "result", "res", "item", "obj", "value", "info", "temp", "tmp", "stuff"}
 _GENERIC_PUBLIC = {
     "process",
@@ -135,7 +134,10 @@ def analyze(context: AnalysisContext):  # type: ignore[no-untyped-def]
                         line=min(lines),
                         symbol=f"{function.name}:{name}",
                         anchor=f"{name}:{','.join(sorted(domain)[:4])}",
-                        metadata={"domain_terms": sorted(domain)[:10], "reference_count": len(lines)},
+                        metadata={
+                            "domain_terms": sorted(domain)[:10],
+                            "reference_count": len(lines),
+                        },
                     )
                 )
     return findings

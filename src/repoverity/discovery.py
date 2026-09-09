@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import ast
+import os
+import tokenize
 from collections.abc import Iterable
 from dataclasses import dataclass
 from fnmatch import fnmatch
-import os
 from pathlib import Path
-import tokenize
 
 from repoverity.models import AnalysisIssue
-
 
 MAX_FILE_BYTES = 1_000_000
 MAX_TOTAL_BYTES = 50_000_000
@@ -118,7 +117,9 @@ def discover_sources(
                 continue
             if path.is_symlink():
                 skipped += 1
-                issues.append(AnalysisIssue(relpath, "symlink-skipped", "symlinked source was not analyzed"))
+                issues.append(
+                    AnalysisIssue(relpath, "symlink-skipped", "symlinked source was not analyzed")
+                )
                 continue
             try:
                 size = path.stat().st_size

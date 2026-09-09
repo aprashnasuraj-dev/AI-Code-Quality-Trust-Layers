@@ -21,13 +21,27 @@ from repoverity.reporters.sarif import sarif_payload
 
 def sample_result(path: str = "src/a b`c.py") -> AuditResult:
     finding = Finding(
-        rule_id="NAM302", category="naming", severity=Severity.LOW,
-        confidence=Confidence.MEDIUM, evidence_level=EvidenceLevel.HEURISTIC,
-        title="Generic API", message="line one\n| injected", mechanism="mechanism\n# heading",
-        location=Location(path, 1, 0, 1, 4), evidence="evidence\n```", recommendation="rename\nnow",
-        exception_note="framework\ncontract", fingerprint="abc123", tags=("maintainability",),
+        rule_id="NAM302",
+        category="naming",
+        severity=Severity.LOW,
+        confidence=Confidence.MEDIUM,
+        evidence_level=EvidenceLevel.HEURISTIC,
+        title="Generic API",
+        message="line one\n| injected",
+        mechanism="mechanism\n# heading",
+        location=Location(path, 1, 0, 1, 4),
+        evidence="evidence\n```",
+        recommendation="rename\nnow",
+        exception_note="framework\ncontract",
+        fingerprint="abc123",
+        tags=("maintainability",),
     )
-    return AuditResult("repo`name", (finding,), (AnalysisIssue("odd|path", "parse-error", "bad\ntext"),), RepositoryStats(1, 1, 0.01))
+    return AuditResult(
+        "repo`name",
+        (finding,),
+        (AnalysisIssue("odd|path", "parse-error", "bad\ntext"),),
+        RepositoryStats(1, 1, 0.01),
+    )
 
 
 def test_json_is_parseable_and_versioned() -> None:
@@ -46,7 +60,9 @@ def test_markdown_sanitizes_multiline_untrusted_text() -> None:
 def test_sarif_is_21_and_uri_encodes_path() -> None:
     payload = sarif_payload(sample_result())
     assert payload["version"] == "2.1.0"
-    uri = payload["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+    uri = payload["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"][
+        "uri"
+    ]
     assert "%20" in uri and "%60" in uri
     assert json.loads(render_sarif(sample_result()))["version"] == "2.1.0"
 

@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Sequence
-from pathlib import Path
 import platform
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 
 from repoverity import __version__
 from repoverity.baseline import BaselineError, write_baseline
-from repoverity.config import ConfigError, FAIL_ON_VALUES, load_config
+from repoverity.config import FAIL_ON_VALUES, ConfigError, load_config
 from repoverity.engine import AuditOptions, audit_repository
-from repoverity.models import AuditResult, SEVERITY_RANK, Severity
+from repoverity.models import SEVERITY_RANK, AuditResult, Severity
 from repoverity.reporters import render_json, render_markdown, render_sarif, render_terminal
 from repoverity.rules.registry import all_rules, get_rule
-
 
 EXIT_OK = 0
 EXIT_GATE = 1
@@ -33,7 +32,9 @@ def _parser() -> argparse.ArgumentParser:
 
     audit = subparsers.add_parser("audit", help="audit a repository")
     audit.add_argument("path", nargs="?", default=".")
-    audit.add_argument("--format", choices=("terminal", "json", "markdown", "sarif"), default="terminal")
+    audit.add_argument(
+        "--format", choices=("terminal", "json", "markdown", "sarif"), default="terminal"
+    )
     audit.add_argument("--output", type=Path)
     audit.add_argument("--severity", choices=tuple(item.value for item in Severity), default="info")
     audit.add_argument("--rules", help="comma-separated rule IDs")
@@ -47,7 +48,9 @@ def _parser() -> argparse.ArgumentParser:
     explain = subparsers.add_parser("explain", help="explain one rule")
     explain.add_argument("rule_id")
 
-    fix_preview = subparsers.add_parser("fix-preview", help="preview remediation without modifying source")
+    fix_preview = subparsers.add_parser(
+        "fix-preview", help="preview remediation without modifying source"
+    )
     fix_preview.add_argument("path", nargs="?", default=".")
     fix_preview.add_argument("--rules", help="comma-separated rule IDs")
 
@@ -56,7 +59,9 @@ def _parser() -> argparse.ArgumentParser:
     baseline_create = baseline_sub.add_parser("create", help="create a fingerprint baseline")
     baseline_create.add_argument("path", nargs="?", default=".")
     baseline_create.add_argument("--output", type=Path, required=True)
-    baseline_check = baseline_sub.add_parser("check", help="compare current findings with a baseline")
+    baseline_check = baseline_sub.add_parser(
+        "check", help="compare current findings with a baseline"
+    )
     baseline_check.add_argument("path", nargs="?", default=".")
     baseline_check.add_argument("--baseline", type=Path, required=True)
 
@@ -124,7 +129,9 @@ def _gate_failed(result: AuditResult, fail_on: str) -> bool:
     if fail_on == "none":
         return False
     threshold = Severity(fail_on)
-    return any(SEVERITY_RANK[item.severity] >= SEVERITY_RANK[threshold] for item in result.new_findings)
+    return any(
+        SEVERITY_RANK[item.severity] >= SEVERITY_RANK[threshold] for item in result.new_findings
+    )
 
 
 def _has_internal_analysis_failure(result: AuditResult) -> bool:
@@ -234,7 +241,9 @@ def _run_baseline_create(args: argparse.Namespace) -> int:
     output = args.output if args.output.is_absolute() else root / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     write_baseline(output, audit_result.findings)
-    sys.stdout.write(f"Baseline written: {output}\nFindings captured: {len(audit_result.findings)}\n")
+    sys.stdout.write(
+        f"Baseline written: {output}\nFindings captured: {len(audit_result.findings)}\n"
+    )
     return EXIT_OK
 
 

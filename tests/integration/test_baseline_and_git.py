@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from repoverity.baseline import write_baseline
 from repoverity.config import load_config
@@ -19,7 +19,10 @@ def init_repo(root: Path) -> None:
     git(root, "config", "user.email", "test@example.invalid")
     (root / "README.md").write_text("# fixture\n", encoding="utf-8")
     (root / "LICENSE").write_text("fixture\n", encoding="utf-8")
-    (root / "pyproject.toml").write_text('[project]\nname="fixture"\nversion="0"\nrequires-python=">=3.11"\nreadme="README.md"\nlicense="MIT"\ndependencies=[]\n', encoding="utf-8")
+    (root / "pyproject.toml").write_text(
+        '[project]\nname="fixture"\nversion="0"\nrequires-python=">=3.11"\nreadme="README.md"\nlicense="MIT"\ndependencies=[]\n',
+        encoding="utf-8",
+    )
     (root / "base.py").write_text("VALUE=1\n", encoding="utf-8")
     git(root, "add", ".")
     assert git(root, "commit", "-m", "base").returncode == 0
@@ -29,16 +32,30 @@ def test_baseline_new_existing_resolved(tmp_path: Path) -> None:
     init_repo(tmp_path)
     target = tmp_path / "bad.py"
     target.write_text("import requests\n", encoding="utf-8")
-    first = audit_repository(tmp_path, load_config(tmp_path), AuditOptions(selected_rules=frozenset({"DEP101"})))
+    first = audit_repository(
+        tmp_path, load_config(tmp_path), AuditOptions(selected_rules=frozenset({"DEP101"}))
+    )
     baseline = tmp_path / ".trust-baseline.json"
     write_baseline(baseline, first.findings)
-    same = audit_repository(tmp_path, load_config(tmp_path), AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline))
+    same = audit_repository(
+        tmp_path,
+        load_config(tmp_path),
+        AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline),
+    )
     assert len(same.existing_findings) == 1 and not same.new_findings
     target.write_text("VALUE=2\n", encoding="utf-8")
-    resolved = audit_repository(tmp_path, load_config(tmp_path), AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline))
+    resolved = audit_repository(
+        tmp_path,
+        load_config(tmp_path),
+        AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline),
+    )
     assert len(resolved.resolved_fingerprints) == 1
     target.write_text("import yaml\n", encoding="utf-8")
-    new = audit_repository(tmp_path, load_config(tmp_path), AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline))
+    new = audit_repository(
+        tmp_path,
+        load_config(tmp_path),
+        AuditOptions(selected_rules=frozenset({"DEP101"}), baseline_path=baseline),
+    )
     assert len(new.new_findings) == 1 and len(new.resolved_fingerprints) == 1
 
 

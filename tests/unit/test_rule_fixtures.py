@@ -7,7 +7,6 @@ import pytest
 from repoverity.rules.registry import all_rules
 from tests.conftest import audit_fixture, load_rule_cases, materialize_rule_case
 
-
 RULE_IDS = tuple(rule.rule_id for rule in all_rules())
 
 
