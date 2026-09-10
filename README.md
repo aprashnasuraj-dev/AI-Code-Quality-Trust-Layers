@@ -201,7 +201,9 @@ repoverity version
 
 ## GitHub Action
 
-RepoVerity is also a composite GitHub Action, so a repository can use it without installing the PyPI package first:
+RepoVerity is also a composite GitHub Action, so a repository can use it without installing the PyPI package first.
+
+Until the first public release is published, evaluation can use `aprashnasuraj-dev/AI-Code-Quality-Trust-Layers@main`. After release, production workflows should pin the released `v0.1.0` tag or an immutable commit.
 
 ```yaml
 - uses: aprashnasuraj-dev/AI-Code-Quality-Trust-Layers@v0.1.0
