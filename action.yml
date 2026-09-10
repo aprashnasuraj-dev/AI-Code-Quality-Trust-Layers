@@ -1,5 +1,5 @@
-name: RepoVerity Audit
-description: Deterministic evidence-based code trust audit for Python repositories
+name: RepoVerity Code Trust Audit
+description: Audit Python repos for dependency, abstraction, test-boundary, dead-code, and release-hygiene trust gaps.
 author: RepoVerity contributors
 inputs:
   path:

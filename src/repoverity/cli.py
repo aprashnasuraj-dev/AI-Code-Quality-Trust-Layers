@@ -28,6 +28,11 @@ def _parser() -> argparse.ArgumentParser:
         prog="repoverity",
         description="Evidence-based code trust audit for Python repositories.",
     )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"RepoVerity {__version__}",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     audit = subparsers.add_parser("audit", help="audit a repository")

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "repoverity"
 dynamic = ["version"]
-description = "Evidence-based code trust audit for Python repositories"
+description = "Deterministic evidence-based code trust audits for Python repositories and CI"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
 license = "MIT"
@@ -13,7 +13,7 @@ license-files = ["LICENSE"]
 authors = [
   { name = "RepoVerity contributors" }
 ]
-keywords = ["static-analysis", "code-quality", "ci", "sarif", "python", "code-review"]
+keywords = ["static-analysis", "code-quality", "ci", "sarif", "python", "code-review", "github-actions", "developer-tools"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",

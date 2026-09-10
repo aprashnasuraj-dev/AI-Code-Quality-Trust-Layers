@@ -35,6 +35,11 @@ def test_version() -> None:
     assert result.returncode == 0 and "RepoVerity 0.1.0" in result.stdout
 
 
+def test_global_version_flag() -> None:
+    result = run_cli("--version")
+    assert result.returncode == 0 and result.stdout.strip() == "RepoVerity 0.1.0"
+
+
 def test_rules_list_and_show() -> None:
     assert run_cli("rules", "list").returncode == 0
     shown = run_cli("rules", "show", "ABS201")

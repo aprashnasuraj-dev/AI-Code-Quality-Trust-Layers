@@ -51,6 +51,7 @@ jobs:
           /tmp/repoverity-wheel-smoke/bin/python -m pip install --no-index --no-deps dist/*.whl
           cd /tmp
           /tmp/repoverity-wheel-smoke/bin/repoverity version
+          /tmp/repoverity-wheel-smoke/bin/repoverity --version
           /tmp/repoverity-wheel-smoke/bin/repoverity --help >/dev/null
           /tmp/repoverity-wheel-smoke/bin/repoverity audit "$GITHUB_WORKSPACE/examples/intentionally_good" --fail-on high --no-color
           /tmp/repoverity-wheel-smoke/bin/python - <<'PY'
@@ -70,6 +71,7 @@ jobs:
           /tmp/repoverity-sdist-smoke/bin/python -m pip install --no-index --no-deps "$TMP"/rebuilt/*.whl
           cd /tmp
           /tmp/repoverity-sdist-smoke/bin/repoverity version
+          /tmp/repoverity-sdist-smoke/bin/repoverity --version
           /tmp/repoverity-sdist-smoke/bin/repoverity --help >/dev/null
           /tmp/repoverity-sdist-smoke/bin/repoverity audit "$GITHUB_WORKSPACE/examples/intentionally_good" --fail-on high --no-color
       - name: Run release benchmarks
