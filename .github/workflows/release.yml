@@ -2,63 +2,99 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [publish-v0.1.0]
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  publish-v0-1-0:
+    runs-on: ubuntu-24.04
+    environment: pypi
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TARGET_SHA: ee79dad8bb6586fbe92de26fd22e9f440ed863f0
+      TAG_NAME: v0.1.0
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      - name: Checkout exact validated source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ee79dad8bb6586fbe92de26fd22e9f440ed863f0
+          fetch-depth: 0
+      - name: Verify publication target
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          remote_main="$(git ls-remote origin refs/heads/main | cut -f1)"
+          test "$remote_main" = "$TARGET_SHA"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists; refusing duplicate publication."
+            exit 1
+          fi
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
-      - run: python -m pip install build twine
-      - run: python -m build
-      - run: python -m twine check dist/*
-      - run: sha256sum dist/* > SHA256SUMS
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+          cache: pip
+      - name: Install release toolchain
+        run: python -m pip install -e '.[dev]'
+      - name: Re-run release gates
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+          python -m mypy src/repoverity
+          python -m pytest
+          python -m compileall -q src tests
+          python -m repoverity audit . --format json --output /tmp/self-audit.json --no-color
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/self-audit.json').read_text(encoding='utf-8'))
+          summary = payload['summary']
+          if summary['total_findings'] != 0 or summary['analysis_issues'] != 0:
+              raise SystemExit(f"self-audit not clean: {summary}")
+          PY
+      - name: Build and check distributions
+        run: |
+          rm -rf build dist ./*.egg-info src/*.egg-info
+          python -m build
+          python -m twine check dist/*
+          sha256sum dist/* | tee SHA256SUMS
+      - name: Clean wheel smoke
+        run: |
+          python -m venv /tmp/repoverity-publish-smoke
+          /tmp/repoverity-publish-smoke/bin/python -m pip install --no-index --no-deps dist/*.whl
+          /tmp/repoverity-publish-smoke/bin/repoverity --version
+          /tmp/repoverity-publish-smoke/bin/repoverity --help >/dev/null
+          /tmp/repoverity-publish-smoke/bin/repoverity audit "$GITHUB_WORKSPACE/examples/intentionally_good" --fail-on high --no-color
+      - name: Upload publication artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: distributions
+          name: repoverity-v0.1.0-publication
           path: |
             dist/*
             SHA256SUMS
-
-  publish-pypi:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+          if-no-files-found: error
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
-          name: distributions
-          path: release-artifacts
-      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
-        with:
-          packages-dir: release-artifacts/dist/
-
-  github-release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
-        with:
-          name: distributions
-          path: release-artifacts
-      - name: Create GitHub release
+          packages-dir: dist/
+      - name: Create immutable release tag
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git tag -a "$TAG_NAME" "$TARGET_SHA" -m "RepoVerity $TAG_NAME"
+          git push origin "refs/tags/$TAG_NAME"
+      - name: Create curated GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG_NAME: ${{ github.ref_name }}
         run: |
           gh release create "$TAG_NAME" \
-            release-artifacts/dist/* \
-            release-artifacts/SHA256SUMS \
-            --title "RepoVerity ${TAG_NAME} — Evidence you can review" \
+            dist/* \
+            SHA256SUMS \
+            --target "$TARGET_SHA" \
+            --title "RepoVerity $TAG_NAME — Evidence you can review" \
             --notes-file docs/RELEASE_NOTES_v0.1.0.md
